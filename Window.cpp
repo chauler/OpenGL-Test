@@ -8,6 +8,8 @@
 
 void error_callback(int, const char*);
 
+static void cursorPosCallback(GLFWwindow* window, double xpos, double ypos);
+
 struct ShaderProgramSource
 {
     std::string VertexSource;
@@ -108,7 +110,7 @@ int main()
         std::cerr<<"issue with glew"<<std::endl;
     }
 
-    Square testSquare(0);
+    Square testSquare(Vector2(0, 0));
     Vector2* vertices = testSquare.getVertices();
 
     float positions[8] = {
@@ -116,7 +118,7 @@ int main()
         vertices[1].x, vertices[1].y,
         vertices[2].x, vertices[2].y,
         vertices[3].x, vertices[3].y,
-    };
+        };
 
     unsigned int index[] = {
         0, 1, 2,
@@ -140,14 +142,24 @@ int main()
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
+    glfwSetCursorPosCallback(window, cursorPosCallback);
+
     //Window Loop
     while(!glfwWindowShouldClose(window))
     {
         glClear(GL_COLOR_BUFFER_BIT);
-
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        testSquare.SetPos(Vector2((xpos/320)-1, ypos/-240+1));
+        vertices = testSquare.getVertices();
+        for(int i=0; i<4; i++)
+        {
+            positions[2*i] = vertices[i].x;
+            positions[2*i+1] = vertices[i].y;
+        }
+        //glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), positions, GL_DYNAMIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), positions);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
         glfwSwapBuffers(window);
 
         glfwPollEvents();
@@ -159,4 +171,9 @@ int main()
 void error_callback(int error, const char* description)
 {
     std::cerr<<description<<std::endl;
+}
+
+static void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) 
+{
+    return;
 }
