@@ -5,6 +5,7 @@
 #include <string>
 #include <sstream>
 #include "Square.h"
+#include <cmath>
 
 void error_callback(int, const char*);
 
@@ -142,8 +143,11 @@ int main()
     unsigned int shader = CreateShader(source.VertexSource, source.FragmentSource);
     glUseProgram(shader);
 
-    glfwSetCursorPosCallback(window, cursorPosCallback);
+    unsigned int colorLoc = glGetUniformLocation(shader, "u_Color");
+    glUniform4f(colorLoc, 1.0, 0.0, 0.0, 1.0);
+    //glfwSetCursorPosCallback(window, cursorPosCallback);
 
+    int count = 0;
     //Window Loop
     while(!glfwWindowShouldClose(window))
     {
@@ -159,6 +163,8 @@ int main()
         }
         //glBufferData(GL_ARRAY_BUFFER, 8 * sizeof(float), positions, GL_DYNAMIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, 8 * sizeof(float), positions);
+        glUniform4f(colorLoc, sin(++count/M_PI*180.0)+1.0, sin(count/M_PI*147)+1.0, sin(count/M_PI*123)+1.0, 1.0);
+
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
         glfwSwapBuffers(window);
 
